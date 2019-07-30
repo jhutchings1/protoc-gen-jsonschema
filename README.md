@@ -2,7 +2,7 @@
 
 ## Watch out!
 
-This is forked in order to provide specific timestamp and casing support for the pipeline. Please be very careful changing this.
+This is forked in order to provide specific timestamp and casing support. Please be very careful using this fork.
 
 ## Getting Started
 

@@ -270,12 +270,19 @@ func convertField(curPkg *ProtoPackage, desc *descriptor.FieldDescriptorProto, m
 
 	case descriptor.FieldDescriptorProto_TYPE_GROUP,
 		descriptor.FieldDescriptorProto_TYPE_MESSAGE:
-		jsonSchemaType.Type = gojsonschema.TYPE_OBJECT
-		if desc.GetLabel() == descriptor.FieldDescriptorProto_LABEL_OPTIONAL {
+		switch desc.GetTypeName() {
+		case ".google.protobuf.Timestamp":
+			jsonSchemaType.OneOf = append(jsonSchemaType.OneOf, &jsonschema.Type{Type: gojsonschema.TYPE_STRING}, &jsonschema.Type{Type: gojsonschema.TYPE_OBJECT})
 			jsonSchemaType.AdditionalProperties = []byte("true")
-		}
-		if desc.GetLabel() == descriptor.FieldDescriptorProto_LABEL_REQUIRED {
-			jsonSchemaType.AdditionalProperties = []byte("false")
+			jsonSchemaType.Format = "date-time"
+		default:
+			jsonSchemaType.Type = gojsonschema.TYPE_OBJECT
+			if desc.GetLabel() == descriptor.FieldDescriptorProto_LABEL_OPTIONAL {
+				jsonSchemaType.AdditionalProperties = []byte("true")
+			}
+			if desc.GetLabel() == descriptor.FieldDescriptorProto_LABEL_REQUIRED {
+				jsonSchemaType.AdditionalProperties = []byte("false")
+			}
 		}
 
 	default:
@@ -377,7 +384,7 @@ func convertMessageType(curPkg *ProtoPackage, msg *descriptor.DescriptorProto) (
 			logWithLevel(LOG_ERROR, "Failed to convert field %s in %s: %v", fieldDesc.GetName(), msg.GetName(), err)
 			return jsonSchemaType, err
 		}
-		jsonSchemaType.Properties[fieldDesc.GetName()] = recursedJSONSchemaType
+		jsonSchemaType.Properties[fieldDesc.GetJsonName()] = recursedJSONSchemaType
 	}
 	return jsonSchemaType, nil
 }

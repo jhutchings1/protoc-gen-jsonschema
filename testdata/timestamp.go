@@ -4,15 +4,7 @@ const Timestamp = `{
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {
         "timestamp": {
-            "additionalProperties": true,
-            "oneOf": [
-                {
-                    "type": "string"
-                },
-                {
-                    "type": "object"
-                }
-            ],
+            "type": "string",
             "format": "date-time"
         }
     },

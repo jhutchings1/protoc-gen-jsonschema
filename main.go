@@ -36,6 +36,7 @@ const (
 
 var (
 	allowNullValues              bool = false
+	disallowEnumOneOf            bool = false
 	disallowAdditionalProperties bool = false
 	disallowBigIntsAsStrings     bool = false
 	debugLogging                 bool = false
@@ -67,6 +68,7 @@ type LogLevel int
 
 func init() {
 	flag.BoolVar(&allowNullValues, "allow_null_values", false, "Allow NULL values to be validated")
+	flag.BoolVar(&disallowEnumOneOf, "disallow_enum_one_of", false, "Disallows enums to have number value as well as name value")
 	flag.BoolVar(&disallowAdditionalProperties, "disallow_additional_properties", false, "Disallow additional properties")
 	flag.BoolVar(&disallowBigIntsAsStrings, "disallow_bigints_as_strings", false, "Disallow bigints to be strings (eg scientific notation)")
 	flag.BoolVar(&debugLogging, "debug", false, "Log debug messages")
@@ -235,10 +237,20 @@ func convertField(curPkg *ProtoPackage, desc *descriptor.FieldDescriptorProto, m
 		}
 
 	case descriptor.FieldDescriptorProto_TYPE_ENUM:
-		jsonSchemaType.OneOf = append(jsonSchemaType.OneOf, &jsonschema.Type{Type: gojsonschema.TYPE_STRING})
-		jsonSchemaType.OneOf = append(jsonSchemaType.OneOf, &jsonschema.Type{Type: gojsonschema.TYPE_INTEGER})
-		if allowNullValues {
-			jsonSchemaType.OneOf = append(jsonSchemaType.OneOf, &jsonschema.Type{Type: gojsonschema.TYPE_NULL})
+		// NOTE with the original way this library worked (no concept of `allowEnumOneOf`), enums could pass validation with either
+		// the integer or the string passed in. Well, in the down stream processes (like data lake) these fields are expected to
+		// actually be the string representation. So in something like data lake, the value for the enum column would be the string
+		// or the number enum representation of that string. Therefore, we must only allow the string and not the number to be sent
+
+		if disallowEnumOneOf {
+			jsonSchemaType.Type = gojsonschema.TYPE_STRING
+		} else {
+			jsonSchemaType.OneOf = append(jsonSchemaType.OneOf, &jsonschema.Type{Type: gojsonschema.TYPE_STRING})
+			jsonSchemaType.OneOf = append(jsonSchemaType.OneOf, &jsonschema.Type{Type: gojsonschema.TYPE_INTEGER})
+
+			if allowNullValues {
+				jsonSchemaType.OneOf = append(jsonSchemaType.OneOf, &jsonschema.Type{Type: gojsonschema.TYPE_NULL})
+			}
 		}
 
 		// Go through all the enums we have, see if we can match any to this field by name:
@@ -253,7 +265,12 @@ func convertField(curPkg *ProtoPackage, desc *descriptor.FieldDescriptorProto, m
 				// If we find ENUM values for this field then put them into the JSONSchema list of allowed ENUM values:
 				if strings.HasSuffix(desc.GetTypeName(), fullFieldName) {
 					jsonSchemaType.Enum = append(jsonSchemaType.Enum, enumValue.Name)
-					jsonSchemaType.Enum = append(jsonSchemaType.Enum, enumValue.Number)
+
+					// NOTE if we are going to allow oneOf, then we should just stick to the default way
+					allowEnumOneOfs := !disallowEnumOneOf
+					if allowEnumOneOfs {
+						jsonSchemaType.Enum = append(jsonSchemaType.Enum, enumValue.Number)
+					}
 				}
 			}
 		}

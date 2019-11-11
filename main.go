@@ -557,6 +557,8 @@ func commandLineParameter(parameters string) {
 			allowNullValues = true
 		case "debug":
 			debugLogging = true
+		case "disallow_enum_one_of":
+			disallowEnumOneOf = true
 		case "disallow_additional_properties":
 			disallowAdditionalProperties = true
 		case "disallow_bigints_as_strings":

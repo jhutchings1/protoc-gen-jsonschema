@@ -1,0 +1,14 @@
+syntax = "proto3";
+package samples;
+
+message NoOneOf {
+    enum inline {
+        FOO = 0;
+        BAR = 1;
+        FIZZ = 2;
+        BUZZ = 3;
+    }
+    
+    inline someChoice = 1;
+    int64 bigNumber = 2;
+}

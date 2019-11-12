@@ -23,7 +23,8 @@ var (
 
 type SampleProto struct {
 	AllowNullValues    bool
-	DisallowEnumOneOfs bool
+	DisallowEnumOneOf  bool
+	DisallowOneOf      bool
 	ExpectedJsonSchema []string
 	FilesToGenerate    []string
 	ProtoFileName      string
@@ -48,6 +49,7 @@ func TestGenerateJsonSchema(t *testing.T) {
 	testConvertSampleProtos(t, sampleProtos["ImportedEnum"])
 	testConvertSampleProtos(t, sampleProtos["NestedMessage"])
 	testConvertSampleProtos(t, sampleProtos["NestedObject"])
+	testConvertSampleProtos(t, sampleProtos["NoOneOf"])
 	testConvertSampleProtos(t, sampleProtos["PayloadMessage"])
 	testConvertSampleProtos(t, sampleProtos["SeveralEnums"])
 	testConvertSampleProtos(t, sampleProtos["SeveralMessages"])
@@ -69,8 +71,8 @@ func testConvertSampleProtos(t *testing.T, sampleProto SampleProto) {
 
 	// Set allowNullValues accordingly:
 	allowNullValues = sampleProto.AllowNullValues
-
-	disallowEnumOneOf = sampleProto.DisallowEnumOneOfs
+	disallowEnumOneOf = sampleProto.DisallowEnumOneOf
+	disallowOneOf = sampleProto.DisallowOneOf
 
 	// Open the sample proto file:
 	sampleProtoFileName := fmt.Sprintf("%v/%v", sampleProtoDirectory, sampleProto.ProtoFileName)
@@ -153,7 +155,8 @@ func configureSampleProtos() {
 	// EnumWithNoOneOf:
 	sampleProtos["EnumWithNoOneOf"] = SampleProto{
 		AllowNullValues:    false,
-		DisallowEnumOneOfs: true,
+		DisallowEnumOneOf:  true,
+		DisallowOneOf:      true,
 		ExpectedJsonSchema: []string{testdata.EnumWithNoOneOf},
 		FilesToGenerate:    []string{"EnumWithNoOneOf.proto"},
 		ProtoFileName:      "EnumWithNoOneOf.proto",
@@ -181,6 +184,16 @@ func configureSampleProtos() {
 		ExpectedJsonSchema: []string{testdata.NestedObject},
 		FilesToGenerate:    []string{"NestedObject.proto"},
 		ProtoFileName:      "NestedObject.proto",
+	}
+
+	// NoOneOf:
+	sampleProtos["NoOneOf"] = SampleProto{
+		AllowNullValues:    false,
+		DisallowEnumOneOf:  true,
+		DisallowOneOf:      true,
+		ExpectedJsonSchema: []string{testdata.NoOneOf},
+		FilesToGenerate:    []string{"NoOneOf.proto"},
+		ProtoFileName:      "NoOneOf.proto",
 	}
 
 	// PayloadMessage:

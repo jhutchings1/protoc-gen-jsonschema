@@ -321,7 +321,12 @@ func convertField(curPkg *ProtoPackage, desc *descriptor.FieldDescriptorProto, m
 		if len(jsonSchemaType.Enum) > 0 {
 			jsonSchemaType.Items.Enum = jsonSchemaType.Enum
 			jsonSchemaType.Enum = nil
-			jsonSchemaType.Items.OneOf = nil
+
+			if allowEnumOneOf && allowOneOf {
+				jsonSchemaType.Items.OneOf = jsonSchemaType.OneOf
+			} else {
+				jsonSchemaType.Items.Type = jsonSchemaType.Type
+			}
 		} else {
 			jsonSchemaType.Items.Type = jsonSchemaType.Type
 			jsonSchemaType.Items.OneOf = jsonSchemaType.OneOf

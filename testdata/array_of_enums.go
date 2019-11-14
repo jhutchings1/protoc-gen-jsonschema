@@ -17,6 +17,14 @@ const ArrayOfEnums = `{
                     2,
                     "BUZZ",
                     3
+                ],
+                "oneOf": [
+                    {
+                        "type": "string"
+                    },
+                    {
+                        "type": "integer"
+                    }
                 ]
             },
             "type": "array"

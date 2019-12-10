@@ -302,11 +302,15 @@ func convertField(curPkg *ProtoPackage, desc *descriptor.FieldDescriptorProto, m
 			jsonSchemaType.Format = "date-time"
 		default:
 			jsonSchemaType.Type = gojsonschema.TYPE_OBJECT
-			if desc.GetLabel() == descriptor.FieldDescriptorProto_LABEL_OPTIONAL {
-				jsonSchemaType.AdditionalProperties = []byte("true")
-			}
-			if desc.GetLabel() == descriptor.FieldDescriptorProto_LABEL_REQUIRED {
+			if disallowAdditionalProperties {
 				jsonSchemaType.AdditionalProperties = []byte("false")
+			} else {
+				if desc.GetLabel() == descriptor.FieldDescriptorProto_LABEL_OPTIONAL {
+					jsonSchemaType.AdditionalProperties = []byte("true")
+				}
+				if desc.GetLabel() == descriptor.FieldDescriptorProto_LABEL_REQUIRED {
+					jsonSchemaType.AdditionalProperties = []byte("false")
+				}
 			}
 		}
 

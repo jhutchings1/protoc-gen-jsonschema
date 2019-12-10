@@ -25,6 +25,7 @@ type SampleProto struct {
 	AllowNullValues    bool
 	DisallowEnumOneOf  bool
 	DisallowOneOf      bool
+	DisallowAdditional bool
 	ExpectedJsonSchema []string
 	FilesToGenerate    []string
 	ProtoFileName      string
@@ -48,6 +49,7 @@ func TestGenerateJsonSchema(t *testing.T) {
 	testConvertSampleProtos(t, sampleProtos["EnumWithNoOneOf"])
 	testConvertSampleProtos(t, sampleProtos["ImportedEnum"])
 	testConvertSampleProtos(t, sampleProtos["NestedMessage"])
+	testConvertSampleProtos(t, sampleProtos["NestedMessageNoAdditionalProperties"])
 	testConvertSampleProtos(t, sampleProtos["NestedObject"])
 	testConvertSampleProtos(t, sampleProtos["NoOneOf"])
 	testConvertSampleProtos(t, sampleProtos["PayloadMessage"])
@@ -73,6 +75,7 @@ func testConvertSampleProtos(t *testing.T, sampleProto SampleProto) {
 	allowNullValues = sampleProto.AllowNullValues
 	disallowEnumOneOf = sampleProto.DisallowEnumOneOf
 	disallowOneOf = sampleProto.DisallowOneOf
+	disallowAdditionalProperties = sampleProto.DisallowAdditional
 
 	// Open the sample proto file:
 	sampleProtoFileName := fmt.Sprintf("%v/%v", sampleProtoDirectory, sampleProto.ProtoFileName)
@@ -174,6 +177,15 @@ func configureSampleProtos() {
 	sampleProtos["NestedMessage"] = SampleProto{
 		AllowNullValues:    false,
 		ExpectedJsonSchema: []string{testdata.PayloadMessage, testdata.NestedMessage},
+		FilesToGenerate:    []string{"NestedMessage.proto", "PayloadMessage.proto"},
+		ProtoFileName:      "NestedMessage.proto",
+	}
+
+	// NestedMessageNoAdditionalProperties:
+	sampleProtos["NestedMessageNoAdditionalProperties"] = SampleProto{
+		AllowNullValues:    false,
+		DisallowAdditional: true,
+		ExpectedJsonSchema: []string{testdata.PayloadMessageNoAdditionalProperties, testdata.NestedMessageNoAdditionalProperties},
 		FilesToGenerate:    []string{"NestedMessage.proto", "PayloadMessage.proto"},
 		ProtoFileName:      "NestedMessage.proto",
 	}

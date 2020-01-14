@@ -47,6 +47,8 @@ func TestGenerateJsonSchema(t *testing.T) {
 	testConvertSampleProtos(t, sampleProtos["ArrayOfPrimitives"])
 	testConvertSampleProtos(t, sampleProtos["EnumCeption"])
 	testConvertSampleProtos(t, sampleProtos["EnumWithNoOneOf"])
+	testConvertSampleProtos(t, sampleProtos["ExternalEnum"])
+	testConvertSampleProtos(t, sampleProtos["ImportedExternalEnum"])
 	testConvertSampleProtos(t, sampleProtos["ImportedEnum"])
 	testConvertSampleProtos(t, sampleProtos["NestedMessage"])
 	testConvertSampleProtos(t, sampleProtos["NestedMessageNoAdditionalProperties"])
@@ -165,12 +167,32 @@ func configureSampleProtos() {
 		ProtoFileName:      "EnumWithNoOneOf.proto",
 	}
 
+	// ExternalEnum:
+	sampleProtos["ExternalEnum"] = SampleProto{
+		AllowNullValues:    false,
+		DisallowEnumOneOf:  true,
+		DisallowOneOf:      true,
+		ExpectedJsonSchema: []string{testdata.ExternalEnum},
+		FilesToGenerate:    []string{"ExternalEnum.proto"},
+		ProtoFileName:      "ExternalEnum.proto",
+	}
+
 	// ImportedEnum:
 	sampleProtos["ImportedEnum"] = SampleProto{
 		AllowNullValues:    false,
 		ExpectedJsonSchema: []string{testdata.ImportedEnum},
 		FilesToGenerate:    []string{"ImportedEnum.proto"},
 		ProtoFileName:      "ImportedEnum.proto",
+	}
+
+	// ImportedExternalEnum:
+	sampleProtos["ImportedExternalEnum"] = SampleProto{
+		AllowNullValues:    false,
+		DisallowEnumOneOf:  true,
+		DisallowOneOf:      true,
+		ExpectedJsonSchema: []string{testdata.ImportedExternalEnum},
+		FilesToGenerate:    []string{"ImportedExternalEnum.proto"},
+		ProtoFileName:      "ImportedExternalEnum.proto",
 	}
 
 	// NestedMessage:

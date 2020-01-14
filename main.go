@@ -266,20 +266,20 @@ func convertField(curPkg *ProtoPackage, desc *descriptor.FieldDescriptorProto, m
 		// Go through all the enums we have, see if we can match any to this field by name:
 		for _, enumDescriptor := range msg.GetEnumType() {
 
+			// Is this the enum we care about?
+			if !strings.HasSuffix(desc.GetTypeName(), *enumDescriptor.Name) {
+				continue
+			}
+
 			// Each one has several values:
 			for _, enumValue := range enumDescriptor.Value {
 
-				// Figure out the entire name of this field:
-				fullFieldName := fmt.Sprintf(".%v.%v", *msg.Name, *enumDescriptor.Name)
+				// Put the ENUM values into the JSONSchema list of allowed ENUM values:
+				jsonSchemaType.Enum = append(jsonSchemaType.Enum, enumValue.Name)
 
-				// If we find ENUM values for this field then put them into the JSONSchema list of allowed ENUM values:
-				if strings.HasSuffix(desc.GetTypeName(), fullFieldName) {
-					jsonSchemaType.Enum = append(jsonSchemaType.Enum, enumValue.Name)
-
-					// NOTE if we are going to allow oneOf, then we should just stick to the default way
-					if allowEnumOneOf {
-						jsonSchemaType.Enum = append(jsonSchemaType.Enum, enumValue.Number)
-					}
+				// NOTE if we are going to allow oneOf, then we should just stick to the default way
+				if allowEnumOneOf {
+					jsonSchemaType.Enum = append(jsonSchemaType.Enum, enumValue.Number)
 				}
 			}
 		}
@@ -507,6 +507,13 @@ func convertFile(file *descriptor.FileDescriptorProto) ([]*plugin.CodeGeneratorR
 		for _, msg := range file.GetMessageType() {
 			jsonSchemaFileName := fmt.Sprintf("%s.jsonschema", msg.GetName())
 			logWithLevel(LOG_INFO, "Generating JSON-schema for MESSAGE (%v) in file [%v] => %v", msg.GetName(), protoFileName, jsonSchemaFileName)
+			// C. Locklear -- Let's send any ENUMs we know about into this msg so that
+			// we can find them when we build our JSON schema.  This will solve the scenario
+			// that arises when an enum is used in message, defined outside the message, but
+			// in the same file.
+			for _, v := range file.EnumType {
+				msg.EnumType = append(msg.EnumType, v)
+			}
 			messageJSONSchema, err := convertMessageType(pkg, msg)
 			if err != nil {
 				logWithLevel(LOG_ERROR, "Failed to convert %s: %v", protoFileName, err)
@@ -539,15 +546,25 @@ func convert(req *plugin.CodeGeneratorRequest) (*plugin.CodeGeneratorResponse, e
 	}
 
 	res := &plugin.CodeGeneratorResponse{}
+	enumDescriptors := make([]*descriptor.EnumDescriptorProto, 0)
 	for _, file := range req.GetProtoFile() {
 		for _, msg := range file.GetMessageType() {
 			logWithLevel(LOG_DEBUG, "Loading a message type %s from package %s", msg.GetName(), file.GetPackage())
 			registerType(file.Package, msg)
 		}
+		// Gather all the enum descriptors referenced across all files.
+		// We're going to inject them into our converter to better improve
+		// the chances that external enums are properly converted in our
+		// new JSON schemas.
+		for _, d := range file.EnumType {
+			enumDescriptors = append(enumDescriptors, d)
+		}
 	}
 	for _, file := range req.GetProtoFile() {
 		if _, ok := generateTargets[file.GetName()]; ok {
 			logWithLevel(LOG_DEBUG, "Converting file (%v)", file.GetName())
+			// Swapparoo
+			file.EnumType = enumDescriptors
 			converted, err := convertFile(file)
 			if err != nil {
 				res.Error = proto.String(fmt.Sprintf("Failed to convert %s: %v", file.GetName(), err))

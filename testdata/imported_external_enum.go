@@ -1,6 +1,6 @@
 package testdata
 
-const ExternalEnum = `{
+const ImportedExternalEnum = `{
     "$schema": "http://json-schema.org/draft-04/schema#",
     "properties": {
         "repeat": {

@@ -2,11 +2,11 @@ syntax = "proto3";
 package samples;
 
 enum External {
-    FIZZ = 0;
+  FIZZ = 0;
 	BUZZ = 1;
 }
 
 message ExternalEnum {
-    External single = 1;
-    repeated External repeat = 2;
+  External single = 1;
+  repeated External repeat = 2;
 }

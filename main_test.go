@@ -42,22 +42,23 @@ func TestGenerateJsonSchema(t *testing.T) {
 	configureSampleProtos()
 
 	// Convert the protos, compare the results against the expected JSON-Schemas:
-	// testConvertSampleProtos(t, sampleProtos["ArrayOfMessages"])
-	// testConvertSampleProtos(t, sampleProtos["ArrayOfObjects"])
-	// testConvertSampleProtos(t, sampleProtos["ArrayOfPrimitives"])
-	// testConvertSampleProtos(t, sampleProtos["EnumCeption"])
-	// testConvertSampleProtos(t, sampleProtos["EnumWithNoOneOf"])
+	testConvertSampleProtos(t, sampleProtos["ArrayOfMessages"])
+	testConvertSampleProtos(t, sampleProtos["ArrayOfObjects"])
+	testConvertSampleProtos(t, sampleProtos["ArrayOfPrimitives"])
+	testConvertSampleProtos(t, sampleProtos["EnumCeption"])
+	testConvertSampleProtos(t, sampleProtos["EnumWithNoOneOf"])
 	testConvertSampleProtos(t, sampleProtos["ExternalEnum"])
-	// testConvertSampleProtos(t, sampleProtos["ImportedEnum"])
-	// testConvertSampleProtos(t, sampleProtos["NestedMessage"])
-	// testConvertSampleProtos(t, sampleProtos["NestedMessageNoAdditionalProperties"])
-	// testConvertSampleProtos(t, sampleProtos["NestedObject"])
-	// testConvertSampleProtos(t, sampleProtos["NoOneOf"])
-	// testConvertSampleProtos(t, sampleProtos["PayloadMessage"])
-	// testConvertSampleProtos(t, sampleProtos["SeveralEnums"])
-	// testConvertSampleProtos(t, sampleProtos["SeveralMessages"])
-	// testConvertSampleProtos(t, sampleProtos["ArrayOfEnums"])
-	// testConvertSampleProtos(t, sampleProtos["Timestamp"])
+	testConvertSampleProtos(t, sampleProtos["ImportedExternalEnum"])
+	testConvertSampleProtos(t, sampleProtos["ImportedEnum"])
+	testConvertSampleProtos(t, sampleProtos["NestedMessage"])
+	testConvertSampleProtos(t, sampleProtos["NestedMessageNoAdditionalProperties"])
+	testConvertSampleProtos(t, sampleProtos["NestedObject"])
+	testConvertSampleProtos(t, sampleProtos["NoOneOf"])
+	testConvertSampleProtos(t, sampleProtos["PayloadMessage"])
+	testConvertSampleProtos(t, sampleProtos["SeveralEnums"])
+	testConvertSampleProtos(t, sampleProtos["SeveralMessages"])
+	testConvertSampleProtos(t, sampleProtos["ArrayOfEnums"])
+	testConvertSampleProtos(t, sampleProtos["Timestamp"])
 }
 
 func testForProtocBinary(t *testing.T) {
@@ -182,6 +183,16 @@ func configureSampleProtos() {
 		ExpectedJsonSchema: []string{testdata.ImportedEnum},
 		FilesToGenerate:    []string{"ImportedEnum.proto"},
 		ProtoFileName:      "ImportedEnum.proto",
+	}
+
+	// ImportedExternalEnum:
+	sampleProtos["ImportedExternalEnum"] = SampleProto{
+		AllowNullValues:    false,
+		DisallowEnumOneOf:  true,
+		DisallowOneOf:      true,
+		ExpectedJsonSchema: []string{testdata.ImportedExternalEnum},
+		FilesToGenerate:    []string{"ImportedExternalEnum.proto"},
+		ProtoFileName:      "ImportedExternalEnum.proto",
 	}
 
 	// NestedMessage:

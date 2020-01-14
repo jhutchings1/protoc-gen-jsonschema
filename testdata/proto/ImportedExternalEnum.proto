@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package samples;
+
+import "ExternalEnum.proto";
+
+message ImportedExternalEnum {
+  samples.External single = 1;
+  repeated samples.External repeat = 2;
+}

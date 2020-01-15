@@ -1,4 +1,4 @@
-module github.com/chrusty/protoc-gen-jsonschema
+module github.com/RedVentures/protoc-gen-jsonschema
 
 require (
 	github.com/alecthomas/jsonschema v0.0.0-20180308105923-f2c93856175a

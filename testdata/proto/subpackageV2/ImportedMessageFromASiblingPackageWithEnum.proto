@@ -1,0 +1,7 @@
+syntax = "proto3";
+package samples.subpackageV2;
+import "subpackage/ExternalEnum.proto";
+
+message ImportedMessageFromASiblingPackageWithEnum {
+  samples.subpackage.ExternalEnum msg = 1;
+}

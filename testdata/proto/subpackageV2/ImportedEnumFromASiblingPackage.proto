@@ -1,10 +1,8 @@
 syntax = "proto3";
-
-package samples;
-
+package samples.subpackageV2;
 import "subpackage/ExternalEnum.proto";
 
-message ImportedExternalEnum {
+message ImportedEnumFromASiblingPackage {
   samples.subpackage.External single = 1;
   repeated samples.subpackage.External repeat = 2;
 }

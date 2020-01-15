@@ -263,13 +263,17 @@ func convertField(curPkg *ProtoPackage, desc *descriptor.FieldDescriptorProto, m
 			jsonSchemaType.Type = gojsonschema.TYPE_STRING
 		}
 
+		foundEnum := false
 		// Go through all the enums we have, see if we can match any to this field by name:
 		for _, enumDescriptor := range msg.GetEnumType() {
 
 			// Is this the enum we care about?
-			if !strings.HasSuffix(desc.GetTypeName(), *enumDescriptor.Name) {
+			if foundEnum || !strings.HasSuffix(desc.GetTypeName(), *enumDescriptor.Name) {
 				continue
 			}
+
+			// Indicate we found what we are looking for
+			foundEnum = true
 
 			// Each one has several values:
 			for _, enumValue := range enumDescriptor.Value {
@@ -282,6 +286,10 @@ func convertField(curPkg *ProtoPackage, desc *descriptor.FieldDescriptorProto, m
 					jsonSchemaType.Enum = append(jsonSchemaType.Enum, enumValue.Number)
 				}
 			}
+		}
+
+		if !foundEnum {
+			logWithLevel(LOG_WARN, "could not find matching enum for field %s with type %s", *desc.Name, *desc.TypeName)
 		}
 
 	case descriptor.FieldDescriptorProto_TYPE_BOOL:
@@ -357,6 +365,12 @@ func convertField(curPkg *ProtoPackage, desc *descriptor.FieldDescriptorProto, m
 			return nil, fmt.Errorf("no such message type named %s", desc.GetTypeName())
 		}
 
+		// C. Locklear -- I think we need to add all the enums from msg into recordType here
+		if len(recordType.EnumType) == 0 {
+			for _, d := range msg.EnumType {
+				recordType.EnumType = append(recordType.EnumType, d)
+			}
+		}
 		// Recurse:
 		recursedJSONSchemaType, err := convertMessageType(curPkg, recordType)
 		if err != nil {

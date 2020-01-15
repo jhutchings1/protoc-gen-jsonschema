@@ -1,0 +1,12 @@
+syntax = "proto3";
+package samples.subpackage;
+
+enum External {
+  FIZZ = 0;
+	BUZZ = 1;
+}
+
+message ExternalEnum {
+  External single = 1;
+  repeated External repeat = 2;
+}

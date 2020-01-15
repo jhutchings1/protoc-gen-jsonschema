@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/chrusty/protoc-gen-jsonschema/testdata"
+	"github.com/RedVentures/protoc-gen-jsonschema/testdata"
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
@@ -49,6 +49,8 @@ func TestGenerateJsonSchema(t *testing.T) {
 	testConvertSampleProtos(t, sampleProtos["EnumWithNoOneOf"])
 	testConvertSampleProtos(t, sampleProtos["ExternalEnum"])
 	testConvertSampleProtos(t, sampleProtos["ImportedExternalEnum"])
+	testConvertSampleProtos(t, sampleProtos["ImportedEnumFromASiblingPackage"])
+	testConvertSampleProtos(t, sampleProtos["ImportedMessageFromASiblingPackageWithEnum"])
 	testConvertSampleProtos(t, sampleProtos["ImportedEnum"])
 	testConvertSampleProtos(t, sampleProtos["NestedMessage"])
 	testConvertSampleProtos(t, sampleProtos["NestedMessageNoAdditionalProperties"])
@@ -193,6 +195,26 @@ func configureSampleProtos() {
 		ExpectedJsonSchema: []string{testdata.ImportedExternalEnum},
 		FilesToGenerate:    []string{"ImportedExternalEnum.proto"},
 		ProtoFileName:      "ImportedExternalEnum.proto",
+	}
+
+	// ImportedEnumFromASiblingPackage:
+	sampleProtos["ImportedEnumFromASiblingPackage"] = SampleProto{
+		AllowNullValues:    false,
+		DisallowEnumOneOf:  true,
+		DisallowOneOf:      true,
+		ExpectedJsonSchema: []string{testdata.ImportedEnumFromASiblingPackage},
+		FilesToGenerate:    []string{"subpackageV2/ImportedEnumFromASiblingPackage.proto"},
+		ProtoFileName:      "subpackageV2/ImportedEnumFromASiblingPackage.proto",
+	}
+
+	// ImportedMessageFromASiblingPackageWithEnum:
+	sampleProtos["ImportedMessageFromASiblingPackageWithEnum"] = SampleProto{
+		AllowNullValues:    false,
+		DisallowEnumOneOf:  true,
+		DisallowOneOf:      true,
+		ExpectedJsonSchema: []string{testdata.ImportedMessageFromASiblingPackageWithEnum},
+		FilesToGenerate:    []string{"subpackageV2/ImportedMessageFromASiblingPackageWithEnum.proto"},
+		ProtoFileName:      "subpackageV2/ImportedMessageFromASiblingPackageWithEnum.proto",
 	}
 
 	// NestedMessage:
